@@ -34,7 +34,8 @@ var pack = d3.pack()
     .padding(3);
 
 d3.csv("regions.csv", function(error, data) {
-console.log("test");
+console.log("===================================================");
+console.log(data);
   if (error) throw error;
 
   var root = stratify(data)
