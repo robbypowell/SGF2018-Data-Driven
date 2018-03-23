@@ -34,6 +34,7 @@ var pack = d3.pack()
     .padding(3);
 
 d3.csv("regions.csv", function(error, data) {
+console.log("test");
   if (error) throw error;
 
   var root = stratify(data)
@@ -105,6 +106,24 @@ function hovered(hover) {
 			window.attachEvent("onmessage", onMessage);
 		}
 	};
+	
+	// Retrieve data and begin processing
+   function onMessage(event) {
+       if (event && event.data)
+       {
+           //process event.data
+		   eventHandlerFromVA(event.data);
+       }
+   }
+   
+   function eventHandlerFromVA(messageFromVA) {
+   if (!messageFromVA.data || !messageFromVA.cols || !messageFromVA.resultName) {return;}
+   
+   _resultName = messageFromVA.resultName;
+   
+   
+   }
+   
 	
 	/*
 	ExampleS of valid selectedRows: 
