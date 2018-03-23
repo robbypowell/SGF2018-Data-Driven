@@ -169,61 +169,10 @@
 		function convertData(arrayData, columnsInfo) {
 			console.log("=== convertData ===");
 			
-			var dt = createDataTable(g_VAMessage);
+//			var dt = createDataTable(g_VAMessage);
 		
 			// Transform input data into a JSON object
 			g_dataTable = {names:[], regions:[], matrix:{}};
-			
-			var easyIndex={};
-			var regionPrev=null;
-			var region_subregion = google.visualization.data.group(dt,[1,3]); // origins
-
-			// populate names: and regions:
-			for (var i = 0; i < region_subregion.getNumberOfRows(); i++)
-			{
-				var region = region_subregion.getValue(i, 0);
-				var subregion = region_subregion.getValue(i, 1);
-				var regionIndex;
-				
-				if (region !== regionPrev) {
-					regionIndex = g_dataTable.names.length;
-					g_dataTable.regions.push(regionIndex);
-					g_dataTable.names.push(region);
-					easyIndex[region]=regionIndex; 
-					regionPrev = region;
-				}
-				regionIndex = g_dataTable.names.length;  
-				g_dataTable.names.push(subregion);
-				easyIndex[subregion]=regionIndex;		 
-			}
-			//console.log(easyIndex); // for debugging
-			
-			regionPrev=null;
-			region_subregion = google.visualization.data.group(dt,[2,4]); // destinations
-
-			// populate names: and regions:
-			for (var i = 0; i < region_subregion.getNumberOfRows(); i++)
-			{
-				var region = region_subregion.getValue(i, 0);
-				var subregion = region_subregion.getValue(i, 1);
-				var regionIndex;
-				
-				if (region !== regionPrev) {
-					if (easyIndex[region] == undefined) {
-						regionIndex = g_dataTable.names.length;
-						g_dataTable.names.push(region);
-						easyIndex[region]=regionIndex; 
-						
-						g_dataTable.regions.push(regionIndex);
-					}
-					regionPrev = region;
-				}
-				if (easyIndex[subregion] == undefined) {
-					regionIndex = g_dataTable.names.length;  
-					g_dataTable.names.push(subregion);
-					easyIndex[subregion]=regionIndex;		 
-				}
-			}
 		}
 		
 		function eventHandlerFromVA(messageFromVA) {
