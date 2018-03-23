@@ -112,6 +112,9 @@ function hovered(hover) {
    function onMessage(event) {
        if (event && event.data)
        {
+		   console.log("=============================");
+		   console.log("!!!onMessage!!!");
+		   console.log(event.data);
            //process event.data
 		   eventHandlerFromVA(event.data);
        }
