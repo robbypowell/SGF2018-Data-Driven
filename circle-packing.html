@@ -166,7 +166,7 @@
 			// Validate message contains right attributes
 			// e.g. Google Calendar expects a DataTable object with 2 columns, in this order: date and number
 			console.log("--------------------validateRoles------------------------");
-			if (!validateRoles(columnsInfo, ["string","string","string","string","string","number"], [])) {
+/*			if (!validateRoles(columnsInfo, ["string","string","string","string","string","number"], [])) {
 				sendInstructionalMessage("Cord chart expects columns to be assigned in this order:\n" +
 					" 1. Year (string)\n" +
 					" 2. Region Origin (string)\n" +
@@ -175,6 +175,7 @@
 					" 5. Sub-region Dest (string)\n" +
 					" 6. Population Flow (number)\n" , messageFromVA.resultName);
 				return;
+*/				
 			}
 
 			// Transform data as required by target chart
