@@ -54,7 +54,7 @@
 				d3.csv(datafile, function(data) {
 					g_dummyDataTable=data;
 					console.log("=== dummyTable ===");
-					console.log(g_dummyDataTable);
+					console.log("g_dummyDataTable = ", g_dummyDataTable);
 					drawChart();
 				});
 			}
@@ -83,12 +83,11 @@
 				
 				console.log("g_dataTable = ", g_dataTable);
 				console.log("=== dummyTable ===");
-				console.log(g_dummyDataTable);
+				console.log("g_dummyDataTable = ", g_dummyDataTable);
 				
 				var dataTable = (g_dataTable ? g_dataTable : g_dummyDataTable);
 
-				console.log(dataTable);				
-				
+				console.log("dataTable = ", dataTable);				
 				draw(dataTable);
 			
 //				g_chart = Globalmigration.chart(dataTable, g_options);
@@ -103,7 +102,7 @@
 //			d3.csv("regions.csv", function(error, data) {
 		function draw(data) {
 			console.log ("=== draw ===");
-			console.log(data);
+			console.log("data = ", data);
 //			  if (error) throw error;
 
 			  var root = stratify(data)
@@ -178,7 +177,7 @@
 //			var dt = createDataTable(g_VAMessage);
 		
 			// Transform input data into a JSON object
-//			g_dataTable = {names:[], regions:[], matrix:{}};
+//
 		}
 		
 		function eventHandlerFromVA(messageFromVA) {
