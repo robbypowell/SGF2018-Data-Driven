@@ -40,7 +40,7 @@
 				.padding(3);
 
 			d3.csv("regions.csv", function(error, data) {
-			console.log("2===================================================");
+			console.log("3===================================================");
 			
 			data
 			console.log(data);
@@ -93,7 +93,90 @@
 		  };
 		}
 
+		function eventHandlerFromVA(messageFromVA) {
+			console.log("********************eventHandlerFromVA************************");
+			console.log(messageFromVA);
+			
+			// Saves the message for eventual Google Chart event handlers
+			g_VAMessage = messageFromVA;
+
+			// arrayData points to the real data object, so any changes to it will affect the data object
+			var arrayData = messageFromVA.data;			
+			var columnsInfo = messageFromVA.columns;
+			
+			// Extract selections (if any) and reformat the data to eliminate the column that indicates "brush"
+			console.log("--------------------createSelections------------------------");
+			createSelections (arrayData, columnsInfo);
+			console.log(g_selections);
+			
+			// Validate message contains right attributes
+			// e.g. Google Calendar expects a DataTable object with 2 columns, in this order: date and number
+			console.log("--------------------validateRoles------------------------");
+			if (!validateRoles(columnsInfo, ["string","string","string","string","string","number"], [])) {
+				sendInstructionalMessage("Cord chart expects columns to be assigned in this order:\n" +
+					" 1. Year (string)\n" +
+					" 2. Region Origin (string)\n" +
+					" 3. Region Dest (string)\n" +
+					" 4. Sub-region Origin (string)\n" +
+					" 5. Sub-region Dest (string)\n" +
+					" 6. Population Flow (number)\n" , messageFromVA.resultName);
+				return;
+			}
+
+			// Transform data as required by target chart
+			console.log("--------------------convertData------------------------");
+			convertData(arrayData, columnsInfo);
+			
+			// Refresh chart
+			drawChart();
+			//var json = syntaxHighlight(g_dataTable);
+			//document.getElementById('diagram').innerHTML = "<pre>" + json + "</pre>";
 		
+		}
+		
+		// Extract selections into g_selections and and reformat the data to eliminate the column that indicates items being "brushed"
+		// Example of selections array for Google: [{row: 3, column: null}, {row: 4, column: null}, {row: 9, column: null}]
+		//
+		function createSelections (arrayData, columnsInfo) {
+			g_selections = []; // <-- if g_selections is not empty, how do I release used memory?
+			for (var c = 0; c < columnsInfo.length; c++) {
+				var colInfo = columnsInfo[c];
+				if (columnsInfo[c].usage) {
+					if (columnsInfo[c].usage === "brush") {
+						// remove the column info
+					    columnsInfo.splice(c,1);
+						// for each row of data, check the bush column for indication of row selection
+						for (var r = 0; r < arrayData.length; r++) {
+							if (arrayData[r][c] !== 0) {
+								// row r has been selected
+								console.log("row:"+r);
+								g_selections.push({row: r, column: null});
+							}
+							// remove the value of the brush column from the row being processed
+							arrayData[r].splice(c,1);
+						}
+						return;
+					}
+				}				
+			}
+		}
+		
+		
+		function validateRoles(columnsInfo, expectedTypes, expectedOptionalTypes) {
+			// Check the required columns 
+			if (columnsInfo.length < expectedTypes.length) return false;
+			for (var c = 0; c < expectedTypes.length; c++) {
+				if (columnsInfo[c].type !== expectedTypes[c]) return false;
+			}
+			// Check the optional columns (if any)
+			if (columnsInfo.length > expectedTypes.length) {
+				for (var c = expectedTypes.length, i = 0; c < columnsInfo.length; c++, i++) {
+					if (columnsInfo[c].type !== expectedOptionalTypes[i]) return false;
+				}
+			}
+			return true;
+		}
+
 		//****************************************************
 		//****************************************************
 		// THIS PART OF THE CODE PROVIDED AS A TEMPLATE BY SAS
