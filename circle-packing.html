@@ -1,180 +1,186 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
-<style>
-
-text {
-  font: 10px sans-serif;
-  text-anchor: middle;
-}
-
-.node--hover circle {
-  stroke: #000;
-  stroke-width: 1.2px;x``
-}
-
-</style>
-<svg width="600" height="600"><g transform="translate(1,1)"></g></svg>
-<script src="https://d3js.org/d3.v4.min.js"></script>
-<script>
-
-var svg = d3.select("svg"),
-    width = +svg.attr("width"),
-    height = +svg.attr("height");
-
-var format = d3.format(",d");
-
-var color = d3.scaleSequential(d3.interpolateMagma)
-    .domain([-4, 4]);
-
-var stratify = d3.stratify()
-    .parentId(function(d) { return d.id.substring(0, d.id.lastIndexOf(".")); });
-
-var pack = d3.pack()
-    .size([width - 2, height - 2])
-    .padding(3);
-
-d3.csv("regions.csv", function(error, data) {
-console.log("===================================================");
-console.log(data);
-  if (error) throw error;
-
-  var root = stratify(data)
-      .sum(function(d) { return d.value; })
-      .sort(function(a, b) { return b.value - a.value; });
-
-  pack(root);
-
-  var node = svg.select("g")
-    .selectAll("g")
-    .data(root.descendants())
-    .enter().append("g")
-      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
-      .attr("class", function(d) { return "node" + (!d.children ? " node--leaf" : d.depth ? "" : " node--root"); })
-      .each(function(d) { d.node = this; })
-      .on("mouseover", hovered(true))
-	  .on("mouseout", hovered(false));
-
-  node.append("circle")
-      .attr("id", function(d) { return "node-" + d.id; })
-      .attr("r", function(d) { return d.r; })
-      .style("fill", function(d) { return color(d.depth); });
-
-	  var leaf = node.filter(function(d) { return !d.children; });
-
-  leaf.append("clipPath")
-      .attr("id", function(d) { return "clip-" + d.id; })
-    .append("use")
-      .attr("xlink:href", function(d) { return "#node-" + d.id + ""; });
-
-  leaf.append("text")
-      .attr("clip-path", function(d) { return "url(#clip-" + d.id + ")"; })
-    .selectAll("tspan")
-    .data(function(d) { return d.id.substring(d.id.lastIndexOf(".") + 1).split(/(?=[A-Z][^A-Z])/g); })
-    .enter().append("tspan")
-      .attr("x", 0)
-      .attr("y", function(d, i, nodes) { return 13 + (i - nodes.length / 2 - 0.5) * 10; })
-      .text(function(d) { return d; });
-
-  node.append("title")
-      .text(function(d) { return d.id + "\n" + format(d.value); });
-});
-
-function hovered(hover) {
-  return function(d) {
-    d3.selectAll(d.ancestors().map(function(d) { return d.node; })).classed("node--hover", hover);
-  };
-}
-
-(function (window) {
-    'use strict';
-
-    var messagingUtil = {};
-	
-	messagingUtil.setOnDataReceivedCallback = function(callback)
-	{
-		var onMessage = function (evt) {
-			if (evt && evt.data && evt.data.hasOwnProperty("data"))
-			{
-				callback(evt.data);
+<html>
+	<head>
+		<meta charset="utf-8">
+		<script src="https://d3js.org/d3.v4.min.js"></script>
+		<style>
+			text {
+			  font: 10px sans-serif;
+			  text-anchor: middle;
 			}
-		}
-		
-		if (window.addEventListener) {
-			// For standards-compliant web browsers
-			window.addEventListener("message", onMessage, false);
-		}
-		else {
-			window.attachEvent("onmessage", onMessage);
-		}
-	};
+
+			.node--hover circle {
+			  stroke: #000;
+			  stroke-width: 1.2px;x``
+			}
+		</style>
+	</head>
 	
-	// Retrieve data and begin processing
-   function onMessage(event) {
-       if (event && event.data)
-       {
-		   console.log("=============================");
-		   console.log("!!!onMessage!!!");
-		   console.log(event.data);
-           //process event.data
-		   eventHandlerFromVA(event.data);
-       }
-   }
-   
-   function eventHandlerFromVA(messageFromVA) {
-   if (!messageFromVA.data || !messageFromVA.cols || !messageFromVA.resultName) {return;}
-   
-   _resultName = messageFromVA.resultName;
-   
-   
-   }
-   
-	
-	/*
-	ExampleS of valid selectedRows: 
-	[0, 3, 4]
-	[{row: 0}, {row: 3}, {row: 4}]
-	*/
-	messagingUtil.postSelectionMessage = function(resultName, selectedRows) 
-	{
-		var selections;
-		if (selectedRows && selectedRows.length > 0 && selectedRows[0].hasOwnProperty("row")) {
-			selections = selectedRows;
-		}
-		else {
-			selections = [];
-			selectedRows.forEach(function (selRow) {
-				selections.push({row: selRow});
-			});
+	<body>
+		<div id="container">
+			<svg id="circles" width="600" height="600"><g transform="translate(1,1)"></g></svg>
+		</div>
+			
+		<script type="text/javascript">
+			"use strict"; // just a best practice
+			var svg = d3.select("svg"),
+				width = +svg.attr("width"),
+				height = +svg.attr("height");
+
+			var format = d3.format(",d");
+
+			var color = d3.scaleSequential(d3.interpolateMagma)
+				.domain([-4, 4]);
+
+			var stratify = d3.stratify()
+				.parentId(function(d) { return d.id.substring(0, d.id.lastIndexOf(".")); });
+
+			var pack = d3.pack()
+				.size([width - 2, height - 2])
+				.padding(3);
+
+			d3.csv("regions.csv", function(error, data) {
+			console.log("===================================================");
+			console.log(data);
+			  if (error) throw error;
+
+			  var root = stratify(data)
+				  .sum(function(d) { return d.value; })
+				  .sort(function(a, b) { return b.value - a.value; });
+
+			  pack(root);
+
+			  var node = svg.select("g")
+				.selectAll("g")
+				.data(root.descendants())
+				.enter().append("g")
+				  .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+				  .attr("class", function(d) { return "node" + (!d.children ? " node--leaf" : d.depth ? "" : " node--root"); })
+			  .each(function(d) { d.node = this; })
+			  .on("mouseover", hovered(true))
+				.on("mouseout", hovered(false));
+
+				node.append("circle")
+			  .attr("id", function(d) { return "node-" + d.id; })
+			  .attr("r", function(d) { return d.r; })
+			  .style("fill", function(d) { return color(d.depth); });
+
+			  var leaf = node.filter(function(d) { return !d.children; });
+
+		  leaf.append("clipPath")
+			  .attr("id", function(d) { return "clip-" + d.id; })
+			.append("use")
+			  .attr("xlink:href", function(d) { return "#node-" + d.id + ""; });
+
+		  leaf.append("text")
+			  .attr("clip-path", function(d) { return "url(#clip-" + d.id + ")"; })
+			.selectAll("tspan")
+			.data(function(d) { return d.id.substring(d.id.lastIndexOf(".") + 1).split(/(?=[A-Z][^A-Z])/g); })
+			.enter().append("tspan")
+			  .attr("x", 0)
+			  .attr("y", function(d, i, nodes) { return 13 + (i - nodes.length / 2 - 0.5) * 10; })
+			  .text(function(d) { return d; });
+
+		  node.append("title")
+			  .text(function(d) { return d.id + "\n" + format(d.value); });
+		});
+
+		function hovered(hover) {
+		  return function(d) {
+			d3.selectAll(d.ancestors().map(function(d) { return d.node; })).classed("node--hover", hover);
+		  };
 		}
 
-		var message = {
-			resultName: resultName, 
-			selections: selections
-		};
-		var url = (window.location != window.parent.location)
-			? document.referrer
-			: document.location.href;
-			
-		window.parent.postMessage(message, url);
-	};
-	
-	messagingUtil.postInstructionalMessage = function(resultName, strMessage) 
-	{
-		var message = {
-			resultName: resultName,
-			message: strMessage
-		};
-		var url = (window.location != window.parent.location)
-			? document.referrer
-			: document.location.href;
-			
-		window.parent.postMessage(message, url);
-	};
-	
-	if (!window.va)
-		window.va = {};
-    window.va.messagingUtil = messagingUtil;
+		(function (window) {
+			'use strict';
 
-})(window);
+			var messagingUtil = {};
+			
+			messagingUtil.setOnDataReceivedCallback = function(callback)
+			{
+				var onMessage = function (evt) {
+					if (evt && evt.data && evt.data.hasOwnProperty("data"))
+					{
+						callback(evt.data);
+					}
+				}
+				
+				if (window.addEventListener) {
+					// For standards-compliant web browsers
+					window.addEventListener("message", onMessage, false);
+				}
+				else {
+					window.attachEvent("onmessage", onMessage);
+				}
+			};
+			
+			// Retrieve data and begin processing
+		   function onMessage(event) {
+			   if (event && event.data)
+			   {
+				   console.log("=============================");
+				   console.log("!!!onMessage!!!");
+				   console.log(event.data);
+				   //process event.data
+				   eventHandlerFromVA(event.data);
+			   }
+		   }
+		   
+		   function eventHandlerFromVA(messageFromVA) {
+		   if (!messageFromVA.data || !messageFromVA.cols || !messageFromVA.resultName) {return;}
+		   
+		   _resultName = messageFromVA.resultName;
+		   
+		   
+		   }
+		   
+			
+			/*
+			ExampleS of valid selectedRows: 
+			[0, 3, 4]
+			[{row: 0}, {row: 3}, {row: 4}]
+			*/
+			messagingUtil.postSelectionMessage = function(resultName, selectedRows) 
+			{
+				var selections;
+				if (selectedRows && selectedRows.length > 0 && selectedRows[0].hasOwnProperty("row")) {
+					selections = selectedRows;
+				}
+				else {
+					selections = [];
+					selectedRows.forEach(function (selRow) {
+						selections.push({row: selRow});
+					});
+				}
+
+				var message = {
+					resultName: resultName, 
+					selections: selections
+				};
+				var url = (window.location != window.parent.location)
+					? document.referrer
+					: document.location.href;
+					
+				window.parent.postMessage(message, url);
+			};
+			
+			messagingUtil.postInstructionalMessage = function(resultName, strMessage) 
+			{
+				var message = {
+					resultName: resultName,
+					message: strMessage
+				};
+				var url = (window.location != window.parent.location)
+					? document.referrer
+					: document.location.href;
+					
+				window.parent.postMessage(message, url);
+			};
+			
+			if (!window.va)
+				window.va = {};
+			window.va.messagingUtil = messagingUtil;
+
+		})(window);
 
 </script>
