@@ -18,7 +18,7 @@
 	
 	<body>
 		<div id="container">
-			<svg id="circles" width="600" height="600"><g transform="translate(1,1)"></g></svg>
+			<svg id="circles" width="800" height="800"><g transform="translate(1,1)"></g></svg>
 		</div>
 			
 		<script type="text/javascript">
@@ -40,7 +40,7 @@
 				.padding(3);
 
 			d3.csv("regions.csv", function(error, data) {
-			console.log("===================================================");
+			console.log("2===================================================");
 			console.log(data);
 			  if (error) throw error;
 
@@ -91,6 +91,7 @@
 		  };
 		}
 
+/*
 		(function (window) {
 			'use strict';
 
@@ -134,12 +135,6 @@
 		   
 		   }
 		   
-			
-			/*
-			ExampleS of valid selectedRows: 
-			[0, 3, 4]
-			[{row: 0}, {row: 3}, {row: 4}]
-			*/
 			messagingUtil.postSelectionMessage = function(resultName, selectedRows) 
 			{
 				var selections;
@@ -182,5 +177,182 @@
 			window.va.messagingUtil = messagingUtil;
 
 		})(window);
+		*/
+		
+		//****************************************************
+		//****************************************************
+		// THIS PART OF THE CODE PROVIDED AS A TEMPLATE BY SAS
+		//****************************************************
+		//****************************************************
+		
+		//
+		// More information about Data-Driven Content here:
+		// http://sww.sas.com/saspedia/Visual_Analytics_Data-Driven_Content
+		// http://go.documentation.sas.com/?cdcId=vacdc&cdcVersion=8.2&docsetId=varef&docsetTarget=n109mqtyl6quiun1mwfgtcn2s68b.htm&locale=en 
+		//
+		
+		//===============
+		// RECEIVING DATA
+		//===============
+		
+		/*
+		The way VA shares data with the Data-Driven Content object is using the HTML5 window.postMessage() API. 
+		This API allows for sending data messages between 2 windows/frames. So when a query is executed in VA, 
+		VA receives the data and will then make a *postMessage* call to send the data to the html page specified 
+		by the Data-Driven Content. In order for the Data-Driven Content to receive the data, it needs to add a listener.
+		*/
+		if (window.addEventListener) {
+			// For standards-compliant web browsers
+		    window.addEventListener("message", onMessage, false);
+	    } else {
+		    window.attachEvent("onmessage", onMessage);
+	    }
 
-</script>
+		/*
+		The onMessage function will be called each time the data for the Data-Driven Content is updated. 
+		The event.data object will be a JSON object and the structure of this data is documented here:
+		http://sww.sas.com/saspedia/Report_Data_Microservice_REST_API#application.2Fvnd.sas.report.data.external
+		
+		
+		Most used attributes from event.data:
+
+		resultName - The name of the associated query result. 
+		             This name will be needed for communicating any messages from the Data-Drive Content back to VA.  
+		data       - The query results stored in a two-dimensional array. 
+		             The data is in row-major order. So event.data.data[0] is the first row of data and event.data.data[0][0]
+					 is the first columns data in the first row. The data in this array is unformatted for measures, so specifying 
+					 a format for a measure will have no impact on the data returned. Dates and date times are formatted, so the data 
+					 will reflect the format the is specified on any date or date time variable.  
+		rowCount   - The number of rows of data returned. 
+		             If all the data has been filtered out or no data items are assigned to the object, the row count will be 0.  
+		columns    - An array of column objects which let the author determine the type of data, as well as other attributes like the format, label, etc.
+					 If a column has a *usage* attribute that has a value of *brush*, then this column of data is to control selection and 
+					 should not be processed with the rest of the data. In that case, if a row is to be selected, it will have a value greater than 0, 
+					 if the row is not selected, it will have a value of 0. A column with the usage attribute set to *brush* is added when the
+					 Data-Driven Content is a target of a linked selection. In the sample data below, the first row and third row of data 
+					 is to be selected, the second row should not be selected. If the Data-Driven Content author wants the visualization 
+					 to honor the linked selection, then it will be the author's responsibility to make the selections on their visualization,
+					 and possibly recreate the *data* attribute without the brush column as well as 
+		parameters - An array of parameter objects which the Data-Driven Content consumed when executing the query. 
+		             This array of parameter objects let the report author access the current value of the parameters as well as other 
+					 attributes on the parameter. Only the parameters which are used by the query will be returned in this array.
+					 
+					 
+		Example of event.data:
+		
+		{
+		"version" : "1",
+		"resultName" : "dd40",
+		"rowCount" : 3,
+		"availableRowCount" : 3,
+		"data" : [ [ "Finch", 95000.0, 0.42857142857142855 ], [ "Jones", 26000.0, 0.0 ], [ "Smith", 108000.0, 0.5 ] ],
+		"columns" : [ {
+			"name" : "bi184",
+			"label" : "dealer",
+			"type" : "string"
+		}, {
+			"name" : "bi258",
+			"label" : "sales",
+			"type" : "number",
+			"usage" : "quantitative",
+			"aggregation" : "sum",
+			"format" : {
+				"name" : "BEST",
+				"width" : 12,
+				"precision" : 0,
+				"formatString" : "BEST12."
+			}
+		}, {
+			"name" : "ri1",
+			"type" : "number",
+			"usage" : "brush",
+			"format" : {
+				"name" : "COMMA",
+				"width" : 12,
+				"precision" : 2,
+				"formatString" : "COMMA12.2"
+			}
+		} ]
+		}
+		*/
+		
+		// Hook for retrieve data and begin processing
+		function onMessage(event) {
+			if (event && event.data && 
+				event.data.hasOwnProperty("data") && event.data.hasOwnProperty("columns") && event.data.hasOwnProperty("resultName") )
+			{
+				// Process event.data
+				// Because data will dynamically change, we need an event handler to to redraw the chart
+				console.log("====================================");
+				console.log("!!!onMessage!!!");
+				eventHandlerFromVA(event.data);
+			}
+		}
+
+		//========================================
+		// LINKED SELECTION HANDLING (AS A SOURCE)
+		//========================================
+		
+		/*
+		The author of the Data-Driven Content needs to communicate back to VA whenever a selection is made in their custom visualization. 
+		This message is needed in order for the object to participate in interactions in which the object is the source of the interaction. 
+		In the message that is sent to VA, the message needs to include the *resultName* attribute (retrieved from the data in which VA sent 
+		to the visualization). VA needs to know which rows of data were selected so the message needs a *selections* attribute that contains 
+		an array of row numbers. or an array of objects that specify the selected row numbers (where 0 is the first row of data). Each entry 
+		in the selections array of objects needs to have an attribute of *row* with a value of the selected row. 
+		Example of valid selections: 
+		[0, 3, 4]
+		[{row: 0}, {row: 3}, {row: 4}]
+		*/
+		
+		function sendSelection(selectedRows, resultName) {
+			var selections;
+			if (selectedRows && selectedRows.length > 0 && selectedRows[0].hasOwnProperty("row")) {
+				selections = selectedRows;
+			}
+			else {
+				selections = [];
+				selectedRows.forEach(function (selRow) {
+					selections.push({row: selRow});
+				});
+			}
+			var message = {
+				resultName: resultName,
+				selections: selections
+			};
+			sendMessage(message);
+		}
+
+		// When calling postMessage, the code needs to call postMessage on the parent and needs to pass in the target origin as the second argument
+		function sendMessage(message)
+		{
+			var url = (window.location != window.parent.location)
+				? document.referrer
+				: document.location.href;
+			window.parent.postMessage(message, url);
+		}
+
+		//=============================
+		// CUSTOM INSTRUCTIONAL MESSAGE
+		//=============================
+		
+		/*
+		The Data-Driven Content object supports displaying a custom instructional message while the report is being authored. When the report is being 
+		viewed in any of the viewers, the message won't show. The custom message is useful for giving instructions to the report author as to 
+		what type of data is required. If the wrong number of data items are assigned or not the correct type of data, or not in the right order,
+		the data-Driven Content author can post a message back to VA and VA will show the message in a pill over the center of the report object. 
+		To send the message, it is sent the same way as the selection message, but instead of sending a *selections* attribute, a *message* 
+		attribute is sent instead.
+		*/
+		
+		function sendInstructionalMessage(strMessage, resultName) {
+			var message = {
+				resultName: resultName,
+				message: strMessage
+			};
+			sendMessage(message);
+		}
+		
+	    </script>
+	</body>
+</html>
