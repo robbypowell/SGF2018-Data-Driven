@@ -160,7 +160,10 @@
 					arrayData.splice(0, 0, resultData.columns);
 				}
 			}
-			return google.visualization.arrayToDataTable(arrayData);
+
+			console.log(resultData);
+			return resultData;
+//			return google.visualization.arrayToDataTable(arrayData);
 		}	
 		
 		function convertData(arrayData, columnsInfo) {
@@ -265,7 +268,7 @@
 		
 		}
 		
-		// Extract selections into g_selections and and reformat the data to eliminate the column that indicates items being "brushed"
+		// Extract selections into g_selections and reformat the data to eliminate the column that indicates items being "brushed"
 		// Example of selections array for Google: [{row: 3, column: null}, {row: 4, column: null}, {row: 9, column: null}]
 		//
 		function createSelections (arrayData, columnsInfo) {
@@ -276,7 +279,7 @@
 					if (columnsInfo[c].usage === "brush") {
 						// remove the column info
 					    columnsInfo.splice(c,1);
-						// for each row of data, check the bush column for indication of row selection
+						// for each row of data, check the brush column for indication of row selection
 						for (var r = 0; r < arrayData.length; r++) {
 							if (arrayData[r][c] !== 0) {
 								// row r has been selected
