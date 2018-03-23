@@ -41,6 +41,8 @@
 
 			d3.csv("regions.csv", function(error, data) {
 			console.log("2===================================================");
+			
+			data
 			console.log(data);
 			  if (error) throw error;
 
@@ -91,93 +93,6 @@
 		  };
 		}
 
-/*
-		(function (window) {
-			'use strict';
-
-			var messagingUtil = {};
-			
-			messagingUtil.setOnDataReceivedCallback = function(callback)
-			{
-				var onMessage = function (evt) {
-					if (evt && evt.data && evt.data.hasOwnProperty("data"))
-					{
-						callback(evt.data);
-					}
-				}
-				
-				if (window.addEventListener) {
-					// For standards-compliant web browsers
-					window.addEventListener("message", onMessage, false);
-				}
-				else {
-					window.attachEvent("onmessage", onMessage);
-				}
-			};
-			
-			// Retrieve data and begin processing
-		   function onMessage(event) {
-			   if (event && event.data)
-			   {
-				   console.log("=============================");
-				   console.log("!!!onMessage!!!");
-				   console.log(event.data);
-				   //process event.data
-				   eventHandlerFromVA(event.data);
-			   }
-		   }
-		   
-		   function eventHandlerFromVA(messageFromVA) {
-		   if (!messageFromVA.data || !messageFromVA.cols || !messageFromVA.resultName) {return;}
-		   
-		   _resultName = messageFromVA.resultName;
-		   
-		   
-		   }
-		   
-			messagingUtil.postSelectionMessage = function(resultName, selectedRows) 
-			{
-				var selections;
-				if (selectedRows && selectedRows.length > 0 && selectedRows[0].hasOwnProperty("row")) {
-					selections = selectedRows;
-				}
-				else {
-					selections = [];
-					selectedRows.forEach(function (selRow) {
-						selections.push({row: selRow});
-					});
-				}
-
-				var message = {
-					resultName: resultName, 
-					selections: selections
-				};
-				var url = (window.location != window.parent.location)
-					? document.referrer
-					: document.location.href;
-					
-				window.parent.postMessage(message, url);
-			};
-			
-			messagingUtil.postInstructionalMessage = function(resultName, strMessage) 
-			{
-				var message = {
-					resultName: resultName,
-					message: strMessage
-				};
-				var url = (window.location != window.parent.location)
-					? document.referrer
-					: document.location.href;
-					
-				window.parent.postMessage(message, url);
-			};
-			
-			if (!window.va)
-				window.va = {};
-			window.va.messagingUtil = messagingUtil;
-
-		})(window);
-		*/
 		
 		//****************************************************
 		//****************************************************
@@ -285,6 +200,7 @@
 				// Because data will dynamically change, we need an event handler to to redraw the chart
 				console.log("====================================");
 				console.log("!!!onMessage!!!");
+				console.log(event.data);
 				eventHandlerFromVA(event.data);
 			}
 		}
