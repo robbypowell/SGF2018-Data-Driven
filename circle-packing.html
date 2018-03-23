@@ -23,6 +23,11 @@
 			
 		<script type="text/javascript">
 			"use strict"; // just a best practice
+
+			console.log("************************************************************************");
+			console.log("********************IN DATA DRIVEN CONTENT CODE ************************");
+			console.log("************************************************************************");
+			
 			var svg = d3.select("svg"),
 				width = +svg.attr("width"),
 				height = +svg.attr("height");
@@ -39,12 +44,61 @@
 				.size([width - 2, height - 2])
 				.padding(3);
 
-			d3.csv("regions.csv", function(error, data) {
-			console.log("3===================================================");
+			var g_dummyDataTable;
 			
-			data
+			function initiateChart() {
+				// This dummy table is to be used as a placeholder while the Data-Driven Content object roles are not set
+				var datafile = 'regions.csv';
+
+				d3.csv(datafile, function(error, data) {
+					g_dummyDataTable=data;
+					console.log(g_dummyDataTable);
+					drawChart();
+				});
+			}
+			
+			var g_VAMessage = null; 	// this will become a pointer to event.data coming from VA
+			var g_dataTable = null; 	// this will hold the data as an array of ordered objects 
+			var g_chart = null;			// this will point to the chart object
+			var g_selections = [];		// this will contain the linked selections (brush) coming from VA
+				
+			function drawChart() {
+				console.log("1********************drawChart************************");
+				console.log("g_chart = ", g_chart);
+				if (g_chart) {
+					console.log("=== g_chart ===");
+					var container = document.getElementById('container');
+					while (container.firstChild) {
+						container.removeChild(container.firstChild);
+					}				
+					var circles = document.createElement('svg');
+					var g = document.createElement('g');
+					g.setAttribute('transform', 'translate(1,1)');
+					circles.setAttribute('id','circles');
+					circles.appendChild(g);
+					container.appendChild(circles);
+					console.log(container);
+				}
+				
+				var dataTable = (g_dataTable ? g_dataTable : g_dummyDataTable);
+					
+				draw(dataTable);
+			
+//				g_chart = Globalmigration.chart(dataTable, g_options);
+//				g_chart.draw(g_options.now);
+			}
+		
+			window.onload = function(e){ 
+				console.log("=== window.onload ==="); 
+				initiateChart();
+			}
+		
+//			d3.csv("regions.csv", function(error, data) {
+		function draw(data) {
+			console.log("===================================================");
+			console.log ("=== draw ===");
 			console.log(data);
-			  if (error) throw error;
+//			  if (error) throw error;
 
 			  var root = stratify(data)
 				  .sum(function(d) { return d.value; })
@@ -69,24 +123,24 @@
 
 			  var leaf = node.filter(function(d) { return !d.children; });
 
-		  leaf.append("clipPath")
-			  .attr("id", function(d) { return "clip-" + d.id; })
-			.append("use")
-			  .attr("xlink:href", function(d) { return "#node-" + d.id + ""; });
+			  leaf.append("clipPath")
+				  .attr("id", function(d) { return "clip-" + d.id; })
+				.append("use")
+				  .attr("xlink:href", function(d) { return "#node-" + d.id + ""; });
 
-		  leaf.append("text")
-			  .attr("clip-path", function(d) { return "url(#clip-" + d.id + ")"; })
-			.selectAll("tspan")
-			.data(function(d) { return d.id.substring(d.id.lastIndexOf(".") + 1).split(/(?=[A-Z][^A-Z])/g); })
-			.enter().append("tspan")
-			  .attr("x", 0)
-			  .attr("y", function(d, i, nodes) { return 13 + (i - nodes.length / 2 - 0.5) * 10; })
-			  .text(function(d) { return d; });
+			  leaf.append("text")
+				  .attr("clip-path", function(d) { return "url(#clip-" + d.id + ")"; })
+				.selectAll("tspan")
+				.data(function(d) { return d.id.substring(d.id.lastIndexOf(".") + 1).split(/(?=[A-Z][^A-Z])/g); })
+				.enter().append("tspan")
+				  .attr("x", 0)
+				  .attr("y", function(d, i, nodes) { return 13 + (i - nodes.length / 2 - 0.5) * 10; })
+				  .text(function(d) { return d; });
 
-		  node.append("title")
-			  .text(function(d) { return d.id + "\n" + format(d.value); });
-		});
-
+			  node.append("title")
+				  .text(function(d) { return d.id + "\n" + format(d.value); });
+		}
+		
 		function hovered(hover) {
 		  return function(d) {
 			d3.selectAll(d.ancestors().map(function(d) { return d.node; })).classed("node--hover", hover);
