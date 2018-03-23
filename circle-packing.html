@@ -48,10 +48,12 @@
 			
 			function initiateChart() {
 				// This dummy table is to be used as a placeholder while the Data-Driven Content object roles are not set
+				console.log("===== initiateChart ===");
 				var datafile = 'regions.csv';
 
 				d3.csv(datafile, function(error, data) {
 					g_dummyDataTable=data;
+					console.log("=== dummyTable ===");
 					console.log(g_dummyDataTable);
 					drawChart();
 				});
@@ -63,10 +65,9 @@
 			var g_selections = [];		// this will contain the linked selections (brush) coming from VA
 				
 			function drawChart() {
-				console.log("1********************drawChart************************");
+				console.log("=============== drawChart==================");
 				console.log("g_chart = ", g_chart);
 				if (g_chart) {
-					console.log("=== g_chart ===");
 					var container = document.getElementById('container');
 					while (container.firstChild) {
 						container.removeChild(container.firstChild);
@@ -81,7 +82,9 @@
 				}
 				
 				var dataTable = (g_dataTable ? g_dataTable : g_dummyDataTable);
-					
+
+				console.log(dataTable);				
+				
 				draw(dataTable);
 			
 //				g_chart = Globalmigration.chart(dataTable, g_options);
@@ -95,7 +98,6 @@
 		
 //			d3.csv("regions.csv", function(error, data) {
 		function draw(data) {
-			console.log("===================================================");
 			console.log ("=== draw ===");
 			console.log(data);
 //			  if (error) throw error;
