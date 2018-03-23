@@ -13,7 +13,7 @@ text {
 }
 
 </style>
-<svg width="960" height="960"><g transform="translate(1,1)"></g></svg>
+<svg width="480" height="480"><g transform="translate(1,1)"></g></svg>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
 
@@ -57,7 +57,7 @@ d3.csv("regions.csv", function(error, data) {
       .attr("r", function(d) { return d.r; })
       .style("fill", function(d) { return color(d.depth); });
 
-  var leaf = node.filter(function(d) { return !d.children; });
+	  var leaf = node.filter(function(d) { return !d.children; });
 
   leaf.append("clipPath")
       .attr("id", function(d) { return "clip-" + d.id; })
